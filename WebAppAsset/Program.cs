@@ -1,4 +1,15 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using WebAppAsset.Data;
+using WebAppAsset.Models;
+
 var builder = WebApplication.CreateBuilder(args);
+
+var ConStr = builder.Configuration.GetConnectionString("ConStr") ?? throw new InvalidOperationException("Connection string 'ConStr' not found.");
+builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(ConStr));
+builder.Services.AddDefaultIdentity<AppUser>(options => options.SignIn.RequireConfirmedAccount = true)
+                .AddRoles<IdentityRole>()
+                .AddEntityFrameworkStores<AppDbContext>();
 
 // Add services to the container.
 //Add Razor Pages
@@ -20,7 +31,8 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseAuthorization();
+app.UseAuthentication();//1
+app.UseAuthorization();//2
 //Add Razor Pages pipeline
 app.MapRazorPages();
 app.MapControllerRoute(
